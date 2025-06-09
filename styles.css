@@ -1,0 +1,59 @@
+/* styles.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 16px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 24px;
+}
+
+.map-container {
+  max-width: 800px;
+  margin: 0 auto 16px;
+}
+
+.map-image {
+  width: 100%;
+  height: auto;
+  border: 2px solid #333;
+  border-radius: 8px;
+}
+
+.time-display {
+  font-size: 1.2rem;
+  margin: 12px 0;
+}
+
+.percentages-container {
+  display: inline-block;
+  text-align: left;
+}
+
+.zone {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.green { background-color: #4caf50; }
+.orange { background-color: #ff9800; }
+.red { background-color: #f44336; }
+
+.zone-name {
+  width: 80px;
+  font-weight: bold;
+}
+
+.zone-percent {
+  margin-left: 4px;
+}
