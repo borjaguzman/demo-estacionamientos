@@ -57,3 +57,8 @@ h1 {
 .zone-percent {
   margin-left: 4px;
 }
+
+.zone-progress {
+  width: 600px;
+  margin: 0 auto;
+}
