@@ -1,59 +1,234 @@
-/* styles.css */
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #3498db;
+  --green: #2ecc71;
+  --orange: #f39c12;
+  --red: #e74c3c;
+  --light-gray: #ecf0f1;
+  --dark-gray: #7f8c8d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  margin: 16px;
-  text-align: center;
+  background-color: #f5f7fa;
+  color: #333;
 }
 
-h1 {
-  margin-bottom: 24px;
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-.map-container {
-  max-width: 800px;
-  margin: 0 auto 16px;
+.dashboard-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.map-image {
-  width: 100%;
-  height: auto;
-  border: 2px solid #333;
-  border-radius: 8px;
+.dashboard-header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.dashboard-header i {
+  margin-right: 10px;
 }
 
 .time-display {
   font-size: 1.2rem;
-  margin: 12px 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+}
+
+.content-wrapper {
+  display: flex;
+  flex: 1;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.map-container {
+  flex: 2;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #f0f0f0;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.info-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.status-summary {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.status-summary h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .percentages-container {
-  display: inline-block;
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .zone {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  padding: 0.8rem 1rem;
+  background-color: var(--light-gray);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.zone:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  margin-right: 8px;
+  margin-right: 12px;
 }
 
-.green { background-color: #4caf50; }
-.orange { background-color: #ff9800; }
-.red { background-color: #f44336; }
+.dot.green {
+  background-color: var(--green);
+}
+
+.dot.orange {
+  background-color: var(--orange);
+}
+
+.dot.red {
+  background-color: var(--red);
+}
 
 .zone-name {
-  width: 80px;
-  font-weight: bold;
+  font-weight: 600;
+  flex: 1;
 }
 
 .zone-percent {
-  margin-left: 4px;
+  font-weight: 700;
+  width: 60px;
+  text-align: right;
+}
+
+.legend-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.legend-container h3 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.dashboard-footer {
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+}
+
+.progress-bar {
+  height: 6px;
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  margin-top: 5px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.progress-fill.green {
+  background-color: var(--green);
+}
+
+.progress-fill.orange {
+  background-color: var(--orange);
+}
+
+.progress-fill.red {
+  background-color: var(--red);
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+    padding: 1rem;
+  }
+  
+  .map-container {
+    height: 300px;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.4rem;
+  }
 }

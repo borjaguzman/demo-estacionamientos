@@ -1,43 +1,49 @@
-// script.js
-let data = [];
+let parkingData = [];
 let currentIndex = 0;
+
+const timeElement = document.getElementById('time-text');
+const percentagesContainer = document.getElementById('zone-percentages');
 
 fetch('data.json')
   .then(res => res.json())
-  .then(json => {
-    data = json;
-    updateUI();
-    setInterval(updateUI, 1000); // cada 2 minutos
+  .then(data => {
+    parkingData = data;
+    updateDashboard();
+    setInterval(updateDashboard, 1000);
   })
-  .catch(err => console.error('Error cargando data.json:', err));
+  .catch(err => console.error('Error cargando datos:', err));
 
-function updateUI() {
-  if (!data.length) return;
-  const entry = data[currentIndex];
-  document.getElementById('simulated-time').textContent = `Hora: ${entry.hora}`;
-
-  const container = document.getElementById('zone-percentages');
-  container.innerHTML = ''; // limpia
-
-  for (const zone in entry.zonas) {
-    const percent = entry.zonas[zone];
-    const colorClass = getColorClass(percent);
-
-    const div = document.createElement('div');
-    div.className = 'zone';
-    div.innerHTML = `
+function updateDashboard() {
+  if (!parkingData.length) return;
+  
+  const currentData = parkingData[currentIndex];
+  timeElement.textContent = currentData.hora;
+  percentagesContainer.innerHTML = '';
+  
+  for (const zone in currentData.zonas) {
+    const percentage = currentData.zonas[zone];
+    const colorClass = getColorClass(percentage);
+    
+    const zoneElement = document.createElement('div');
+    zoneElement.className = 'zone';
+    zoneElement.style.position = 'relative';
+    zoneElement.style.paddingBottom = '15px';
+    zoneElement.innerHTML = `
       <span class="dot ${colorClass}"></span>
-      <span class="zone-name">Zona ${zone}:</span>
-      <span class="zone-percent">${percent}%</span>
+      <span class="zone-name">Zona ${zone}</span>
+      <span class="zone-percent">${percentage}%</span>
+      <div class="progress-bar">
+        <div class="progress-fill ${colorClass}" style="width: ${percentage}%"></div>
+      </div>
     `;
-    container.appendChild(div);
+    percentagesContainer.appendChild(zoneElement);
   }
-
-  currentIndex = (currentIndex + 1) % data.length;
+  
+  currentIndex = (currentIndex + 1) % parkingData.length;
 }
 
-function getColorClass(p) {
-  if (p >= 90) return 'red';
-  if (p >= 60) return 'orange';
+function getColorClass(percentage) {
+  if (percentage >= 90) return 'red';
+  if (percentage >= 60) return 'orange';
   return 'green';
 }
