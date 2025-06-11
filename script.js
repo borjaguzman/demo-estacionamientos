@@ -1,125 +1,146 @@
-let liveData = [];
-let liveIndex = 0;
 
-let historyData = [];          
+const LIVE_JSON_FILE = 'data-tiempo-real.json';
+// const LIVE_JSON_FILE = 'data-test-noche.json';
+
+let liveData     = [];           
+let timeSet      = new Set();    
+let firstSlot    = null;        
+let lastSlot     = null;         
+let currentSlot  = '';           
+
+let historyData  = [];          
 let historyIndex = 0;
 
-const timeEl           = document.getElementById('time-text');
-const percentagesEl    = document.getElementById('zone-percentages');
+const timeEl          = document.getElementById('time-text');        
+const updateTextEl    = document.getElementById('update-text');       
+const percentagesEl   = document.getElementById('zone-percentages')
 
-const calendarGrid     = document.getElementById('calendar-grid');     
-const historyView      = document.getElementById('history-view');      
-const historySlider    = document.getElementById('history-slider');    
-const historyTimeText  = document.getElementById('history-time-text'); 
-const historyPercentEl = document.getElementById('history-zone-percentages'); 
+const calendarGrid    = document.getElementById('calendar-grid');     
+const historyView     = document.getElementById('history-view');       
+const historySlider   = document.getElementById('history-slider');      
+const historyTimeText = document.getElementById('history-time-text');  
+const historyPercentEl= document.getElementById('history-zone-percentages');
 
-fetch('data.json')
-  .then(res => res.json())
-  .then(data => {
-    liveData = data;
-    updateLiveDashboard();
-    setInterval(updateLiveDashboard, 1000);
-  })
-  .catch(err => console.error('Error cargando datos tiempo real:', err));
-
+loadLiveData(LIVE_JSON_FILE);
 buildCalendar();
+initTabs();
 
-function updateLiveDashboard() {
-  if (!liveData.length) return;
+function loadLiveData(file){
+  fetch(file)
+    .then(r => r.json())
+    .then(data => {
+      liveData    = data;
+      timeSet     = new Set(data.map(d => d.hora));
+      firstSlot   = data[0].hora;             
+      lastSlot    = data[data.length-1].hora; 
 
-  const currentData = liveData[liveIndex];
-  timeEl.textContent = currentData.hora;
-  renderPercentages(currentData.zonas, percentagesEl);
-
-  liveIndex = (liveIndex + 1) % liveData.length;
+      updateFromRealClock();                   
+      setInterval(updateFromRealClock, 1000);  
+    })
+    .catch(err => console.error('Error cargando', file, err));
 }
 
-function getColorClass(pct) {
-  if (pct >= 90) return 'red';
-  if (pct >= 60) return 'orange';
-  return 'green';
-}
+function pad(n){ return String(n).padStart(2,'0'); }
 
-function renderPercentages(zonasObj, container) {
-  container.innerHTML = '';
-  for (const zona in zonasObj) {
-    const pct  = zonasObj[zona];
-    const col  = getColorClass(pct);
+function updateFromRealClock(){
+  const now   = new Date();
+  const hm    = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-    const zoneDiv = document.createElement('div');
-    zoneDiv.className = 'zone';
-    zoneDiv.style.position = 'relative';
+  timeEl.textContent = hm;
 
-    zoneDiv.innerHTML = `
-      <span class="dot ${col}"></span>
-      <span class="zone-name">Zona ${zona}</span>
-      <span class="zone-percent">${pct}%</span>
-      <div class="progress-bar"><div class="progress-fill ${col}" style="width:${pct}%"></div></div>
-    `;
-    container.appendChild(zoneDiv);
+  if (hm < firstSlot || hm > lastSlot) return;
+
+  if (hm !== currentSlot && timeSet.has(hm)){
+    const slotObj = liveData.find(d => d.hora === hm);
+    if (slotObj){
+      renderPercentages(slotObj.zonas, percentagesEl);
+      currentSlot            = hm;
+      updateTextEl.textContent = hm;  
+    }
   }
 }
 
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.classList.contains('active')) return;
+function getColorClass(p){ return p>=90 ? 'red' : (p>=60 ? 'orange' : 'green'); }
 
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+function renderPercentages(zonasObj, container){
+  container.innerHTML = '';
+  for (const zona in zonasObj){
+    const pct = zonasObj[zona];
+    const col = getColorClass(pct);
 
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.target).classList.add('active');
+    const div = document.createElement('div');
+    div.className = 'zone';
+    div.style.position = 'relative';
+    div.innerHTML = `
+      <span class="dot ${col}"></span>
+      <span class="zone-name">Zona ${zona}</span>
+      <span class="zone-percent">${pct}%</span>
+      <div class="progress-bar">
+        <div class="progress-fill ${col}" style="width:${pct}%"></div>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+}
+
+function initTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.classList.contains('active')) return;
+
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+    });
   });
-});
+}
 
-function buildCalendar() {
-  const diasES = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+function buildCalendar(){
+  const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
 
-  diasES.forEach((dia, idx) => {
+  dias.forEach(dia=>{
     const card = document.createElement('div');
     card.className = 'day-card';
     card.textContent = dia;
-    card.dataset.dayId = idx;
     calendarGrid.appendChild(card);
   });
 
-  calendarGrid.addEventListener('click', e => {
+  calendarGrid.addEventListener('click', e=>{
     const card = e.target.closest('.day-card');
-    if (!card) return;
+    if(!card) return;
     selectDay(card);
   });
 }
 
-function selectDay(card) {
-  document.querySelectorAll('.day-card').forEach(c => c.classList.remove('selected'));
+function selectDay(card){
+  document.querySelectorAll('.day-card').forEach(c=>c.classList.remove('selected'));
   card.classList.add('selected');
 
-  const dayName = card.textContent.toLowerCase();
-  fetch(`data-${dayName}.json`)
-    .then(res => res.json())
-    .then(data => {
-      historyData  = data;
-      historyIndex = 0;
+  const file = `data-${card.textContent.toLowerCase()}.json`;
+  fetch(file)
+    .then(r => r.json())
+    .then(data=>{
+      historyData = data;
+      historyIndex= 0;
 
-      historySlider.max   = historyData.length - 1;
+      historySlider.max   = data.length - 1;
       historySlider.value = 0;
-      historySlider.step  = 1;
-
       historyView.classList.remove('hidden');
       updateHistoryDashboard();
     })
-    .catch(err => console.error('Error cargando datos historia:', err));
+    .catch(err=>console.error('Error cargando datos historia:', err));
 }
 
-historySlider.addEventListener('input', () => {
+historySlider.addEventListener('input', ()=>{
   historyIndex = parseInt(historySlider.value, 10);
   updateHistoryDashboard();
 });
 
-function updateHistoryDashboard() {
-  if (!historyData.length) return;
-
-  const data = historyData[historyIndex];
-  historyTimeText.textContent = data.hora;
-  renderPercentages(data.zonas, historyPercentEl);
+function updateHistoryDashboard(){
+  if(!historyData.length) return;
+  const d = historyData[historyIndex];
+  historyTimeText.textContent = d.hora;
+  renderPercentages(d.zonas, historyPercentEl);
 }
