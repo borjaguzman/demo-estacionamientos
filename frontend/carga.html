@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Subir datos de ocupación</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <section class="history-wrapper">
+    <h2><i class="fas fa-upload"></i> Cargar estado manual</h2>
+
+    <form id="submit-form" class="percentages-container" style="max-width: 400px;">
+      <label>Zona A <input type="number" name="A" required min="0" max="100" /></label>
+      <label>Zona B <input type="number" name="B" required min="0" max="100" /></label>
+      <label>Zona C <input type="number" name="C" required min="0" max="100" /></label>
+      <label>Zona D <input type="number" name="D" required min="0" max="100" /></label>
+      <button type="submit" style="margin-top:1rem;padding:.6rem 1.2rem;">Guardar</button>
+    </form>
+
+    <div id="submit-result" style="margin-top:1rem;font-weight:bold;"></div>
+  </section>
+
+  <script>
+    function pad(n){ return String(n).padStart(2,'0'); }
+
+    document.getElementById('submit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const zonas = {
+        A: parseInt(form.A.value, 10),
+        B: parseInt(form.B.value, 10),
+        C: parseInt(form.C.value, 10),
+        D: parseInt(form.D.value, 10)
+      };
+
+      const now = new Date();
+      const hora = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+      try {
+        const res = await fetch('http://localhost:3000/api/guardar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hora, zonas })
+        });
+        const msg = await res.json();
+        document.getElementById('submit-result').textContent = msg.message || 'OK';
+      } catch (err) {
+        document.getElementById('submit-result').textContent = 'Error al guardar.';
+      }
+    });
+  </script>
+</body>
+</html>
